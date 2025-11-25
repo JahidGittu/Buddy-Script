@@ -1,4 +1,3 @@
-
 'use client'
 
 import { useMemo, useState } from 'react'
@@ -21,7 +20,8 @@ export default function Comment({ comment, onReplyAdded }: CommentProps) {
     replyText,
     setReplyText,
     handleReplySubmit,
-    toggleReply
+    toggleReply,
+    updateCommentReactions
   } = useCommentContext()
 
   // Add local state for reactions
@@ -99,6 +99,18 @@ export default function Comment({ comment, onReplyAdded }: CommentProps) {
     }
   };
 
+  // Handle reaction update
+  const handleReactionUpdate = (data: { totalReactions: number; currentUserReaction: string }) => {
+    setLocalReactionData({
+      totalReactions: data.totalReactions,
+      currentUserReaction: data.currentUserReaction
+    });
+    // Update context for optimistic updates
+    if (comment._id) {
+      updateCommentReactions(comment._id, data);
+    }
+  };
+
   return (
     <div className="flex space-x-3">
       <div className="flex-shrink-0">
@@ -148,12 +160,7 @@ export default function Comment({ comment, onReplyAdded }: CommentProps) {
                   }}
                   commentId={comment._id || ''}
                   postId={postId}
-                  onReactionUpdate={(data) => {
-                    setLocalReactionData({
-                      totalReactions: data.totalReactions,
-                      currentUserReaction: data.currentUserReaction
-                    });
-                  }}
+                  onReactionUpdate={handleReactionUpdate}
                 />
               </li>
               <li>

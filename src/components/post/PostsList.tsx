@@ -3,7 +3,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import Post from './Post'
-import { PostType, UserReactionType } from '@/types/post'
+import { PostType, UserReactionType, CommentType } from '@/types/post'
 import { useSession } from 'next-auth/react'
 
 interface PostsListProps {
@@ -90,9 +90,19 @@ export default function PostsList({ refreshTrigger = 0 }: PostsListProps) {
     );
   }, [session]);
 
-  // Refresh posts when comments are added
-  const handleCommentAdded = useCallback(() => {
-    fetchPosts();
+  // OPTIMISTIC COMMENT UPDATE - Add comment instantly to UI
+  const handleCommentAdded = useCallback((postId: string, newComment: CommentType) => {
+    setPosts(prevPosts =>
+      prevPosts.map(post => {
+        if (post._id === postId) {
+          return {
+            ...post,
+            comments: [newComment, ...post.comments]
+          };
+        }
+        return post;
+      })
+    );
   }, []);
 
   if (loading) {
@@ -132,7 +142,10 @@ export default function PostsList({ refreshTrigger = 0 }: PostsListProps) {
           key={post._id} 
           post={post} 
           onReactionUpdate={updatePostReaction}
-          onCommentAdded={handleCommentAdded}
+          onCommentAdded={() => {
+            // This will trigger the optimistic update in CommentSection
+            console.log('Comment added to post:', post._id);
+          }}
         />
       ))}
     </div>

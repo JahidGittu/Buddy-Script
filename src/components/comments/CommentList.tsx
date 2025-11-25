@@ -1,24 +1,23 @@
 'use client'
 
 import Comment from './Comment'
-import { CommentType } from '@/types/post'
+import { useCommentContext } from '@/contexts/CommentContext'
 
 interface CommentListProps {
-  comments: CommentType[]
   showAllComments: boolean
   onReplyAdded?: () => void
-  onShowMoreComments?: () => void // Add this prop
+  onShowMoreComments?: () => void
 }
 
 export default function CommentList({
-  comments,
   showAllComments,
   onReplyAdded,
   onShowMoreComments
 }: CommentListProps) {
-  const displayedComments = showAllComments ? comments : comments.slice(0, 2)
+  const { optimisticComments } = useCommentContext()
+  const displayedComments = showAllComments ? optimisticComments : optimisticComments.slice(0, 2)
 
-  if (comments.length === 0) {
+  if (optimisticComments.length === 0) {
     return (
       <div className="text-center py-8 text-gray-500 text-sm">
         No comments yet. Be the first to comment!
@@ -28,6 +27,18 @@ export default function CommentList({
 
   return (
     <div className="space-y-6">
+      {/* Show "Load more comments" ABOVE the comments, left-aligned */}
+      {!showAllComments && optimisticComments.length > 2 && (
+        <div className="pt-2">
+          <button 
+            onClick={onShowMoreComments}
+            className="text-gray-400 text-sm font-semibold hover:underline"
+          >
+            View {optimisticComments.length - 2} more comments
+          </button>
+        </div>
+      )}
+
       {displayedComments.map((comment) => (
         <Comment
           key={comment._id}
@@ -35,18 +46,6 @@ export default function CommentList({
           onReplyAdded={onReplyAdded}
         />
       ))}
-      
-      {/* Show "Load more comments" if there are more to display */}
-      {!showAllComments && comments.length > 2 && (
-        <div className="text-center pt-4">
-          <button 
-            onClick={onShowMoreComments}
-            className="text-blue-600 text-sm font-semibold hover:underline"
-          >
-            View {comments.length - 2} more comments
-          </button>
-        </div>
-      )}
     </div>
   )
 }

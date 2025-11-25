@@ -21,7 +21,7 @@ interface UserReactionType {
   email: string;
   name: string;
   avatar: string;
-  reactedAt: string; // This should be string, not Date, because JSON serializes dates to strings
+  reactedAt: string;
 }
 
 export default function Post({ post, onReactionUpdate, onCommentAdded }: PostProps) {
@@ -102,7 +102,7 @@ export default function Post({ post, onReactionUpdate, onCommentAdded }: PostPro
     }
   }
 
-  // Handle when a comment is added - refresh the post
+  // Handle when a comment is added - update parent component
   const handleCommentAdded = () => {
     if (onCommentAdded) {
       onCommentAdded();
@@ -126,7 +126,7 @@ export default function Post({ post, onReactionUpdate, onCommentAdded }: PostPro
         postId={post._id || ''}
         totalReactions={getTotalReactions()}
         reactionAvatars={getReactionAvatars()}
-        commentsCount={post.comments.length}
+        commentsCount={post.comments.length} // Use original comments count
         sharesCount={post.shares}
         activeReaction={activeReaction}
         setActiveReaction={handleReactionUpdate}

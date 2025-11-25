@@ -1,5 +1,3 @@
-
-
 'use client'
 
 import { useMemo, useState } from 'react'
@@ -27,7 +25,7 @@ function NestedReplyItem({
   parentReplyId?: string;
 }) {
   const { data: session } = useSession()
-  const { replyingTo, replyText, setReplyText, handleReplySubmit, toggleReply } = useCommentContext()
+  const { replyingTo, replyText, setReplyText, handleReplySubmit, toggleReply, updateNestedReplyReactions } = useCommentContext()
 
   // Add local state for reactions
   const [localReactionData, setLocalReactionData] = useState({
@@ -101,6 +99,18 @@ function NestedReplyItem({
 
   const nestedReplyKey = `${commentId}-${nestedReply._id}`;
 
+  // Handle reaction update for nested reply
+  const handleReactionUpdate = (data: { totalReactions: number; currentUserReaction: string }) => {
+    setLocalReactionData({
+      totalReactions: data.totalReactions,
+      currentUserReaction: data.currentUserReaction
+    });
+    // Update context for optimistic updates
+    if (nestedReply._id && parentReplyId) {
+      updateNestedReplyReactions(commentId, parentReplyId, nestedReply._id, data);
+    }
+  };
+
   return (
     <div className="flex space-x-3">
       <div className="flex-shrink-0">
@@ -150,12 +160,7 @@ function NestedReplyItem({
                   isReply={true}
                   parentCommentId={commentId}
                   parentReplyId={parentReplyId}
-                  onReactionUpdate={(data) => {
-                    setLocalReactionData({
-                      totalReactions: data.totalReactions,
-                      currentUserReaction: data.currentUserReaction
-                    });
-                  }}
+                  onReactionUpdate={handleReactionUpdate}
                 />
               </li>
 
@@ -225,7 +230,8 @@ export default function Reply({ reply, commentId, onReplyAdded }: ReplyProps) {
     replyText,
     setReplyText,
     handleReplySubmit,
-    toggleReply
+    toggleReply,
+    updateReplyReactions
   } = useCommentContext()
 
   const [showNestedReplies, setShowNestedReplies] = useState(false)
@@ -303,6 +309,18 @@ export default function Reply({ reply, commentId, onReplyAdded }: ReplyProps) {
   const hasNestedReplies = reply.replies && reply.replies.length > 0;
   const replyKey = `${commentId}-${reply._id}`;
 
+  // Handle reaction update for reply
+  const handleReactionUpdate = (data: { totalReactions: number; currentUserReaction: string }) => {
+    setLocalReactionData({
+      totalReactions: data.totalReactions,
+      currentUserReaction: data.currentUserReaction
+    });
+    // Update context for optimistic updates
+    if (reply._id) {
+      updateReplyReactions(commentId, reply._id, data);
+    }
+  };
+
   return (
     <div className="flex space-x-3">
       <div className="flex-shrink-0">
@@ -351,12 +369,7 @@ export default function Reply({ reply, commentId, onReplyAdded }: ReplyProps) {
                   postId={postId}
                   isReply={true}
                   parentCommentId={commentId}
-                  onReactionUpdate={(data) => {
-                    setLocalReactionData({
-                      totalReactions: data.totalReactions,
-                      currentUserReaction: data.currentUserReaction
-                    });
-                  }}
+                  onReactionUpdate={handleReactionUpdate}
                 />
               </li>
 

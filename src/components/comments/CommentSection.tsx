@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from 'react'
 import { useSession } from 'next-auth/react'
-import { CommentProvider } from '@/contexts/CommentContext'
+import { CommentProvider, useCommentContext } from '@/contexts/CommentContext'
 import CommentList from './CommentList'
 import { PostType, CommentType } from '@/types/post'
 
@@ -23,16 +23,14 @@ function CommentSectionContent({
 }: CommentSectionProps) {
   const { data: session } = useSession()
   const [commentText, setCommentText] = useState('')
-  const [optimisticComments, setOptimisticComments] = useState<CommentType[]>(post.comments)
-
-  console.log(post.comments)
+  const { addOptimisticComment, updateOptimisticComment, removeOptimisticComment } = useCommentContext()
 
   const handleCommentSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!commentText.trim() || !session?.user) return
 
-    // OPTIMISTIC UPDATE
-    const tempId = `temp-${Date.now()}`
+    // OPTIMISTIC UPDATE: Create temporary comment
+    const tempId = `temp-comment-${Date.now()}`
     const optimisticComment: CommentType = {
       _id: tempId,
       content: commentText,
@@ -49,8 +47,11 @@ function CommentSectionContent({
       createdAt: new Date().toISOString(),
     }
 
-    setOptimisticComments(prev => [optimisticComment, ...prev])
-    const previousComments = optimisticComments
+    // IMMEDIATE UI UPDATE: Add to UI instantly
+    addOptimisticComment(optimisticComment)
+
+    // Clear input
+    const previousText = commentText
     setCommentText('')
 
     try {
@@ -59,23 +60,39 @@ function CommentSectionContent({
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ content: commentText }),
+        body: JSON.stringify({ content: previousText }),
       })
 
       if (!response.ok) {
         throw new Error('Failed to add comment')
       }
 
+      const result = await response.json()
+      
+      // REPLACE WITH REAL DATA: Update the temporary comment with real server data
+      updateOptimisticComment(tempId, result.comment)
+      
+      // Notify parent that comment was added successfully
       if (onCommentAdded) {
         onCommentAdded()
       }
 
     } catch (error) {
       console.error('Error adding comment:', error)
-      setOptimisticComments(previousComments)
+      // REVERT ON ERROR: Remove the temporary comment if there's an error
+      removeOptimisticComment(tempId)
+      // Restore the text
+      setCommentText(previousText)
       alert('Failed to add comment. Please try again.')
     }
   }
+
+  // Handle reply added from context
+  const handleReplyAdded = useCallback(() => {
+    if (onCommentAdded) {
+      onCommentAdded()
+    }
+  }, [onCommentAdded])
 
   return (
     <div className="p-6">
@@ -114,24 +131,11 @@ function CommentSectionContent({
         </div>
       </div>
 
-      {/* Previous Comments Button */}
-      {!showAllComments && optimisticComments.length > 2 && (
-        <div className="mb-4">
-          <button
-            onClick={() => setShowAllComments(true)}
-            className="text-gray-500 text-sm hover:text-blue-600 transition-colors"
-          >
-            View {optimisticComments.length - 2} more comments
-          </button>
-        </div>
-      )}
-
       {/* Comments List */}
       <CommentList
-        comments={optimisticComments}
         showAllComments={showAllComments}
-        onReplyAdded={onCommentAdded}
-        onShowMoreComments={() => setShowAllComments(true)} // Add this
+        onReplyAdded={handleReplyAdded}
+        onShowMoreComments={() => setShowAllComments(true)}
       />
     </div>
   )
@@ -145,7 +149,11 @@ export default function CommentSection({
   onCommentAdded
 }: CommentSectionProps) {
   return (
-    <CommentProvider postId={post._id || ''} onReplyAdded={onCommentAdded}>
+    <CommentProvider 
+      postId={post._id || ''} 
+      onReplyAdded={onCommentAdded}
+      initialComments={post.comments}
+    >
       <CommentSectionContent
         post={post}
         showAllComments={showAllComments}

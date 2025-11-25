@@ -18,6 +18,7 @@ export default function CreatePost({ onPostCreated }: CreatePostProps) {
   const [showPrivacyMenu, setShowPrivacyMenu] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
+  const privacyMenuRef = useRef<HTMLDivElement>(null)
 
   const handleImageSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
@@ -34,6 +35,10 @@ export default function CreatePost({ onPostCreated }: CreatePostProps) {
     if (fileInputRef.current) {
       fileInputRef.current.value = ''
     }
+  }
+
+  const togglePrivacy = () => {
+    setPrivacy(prev => prev === 'public' ? 'private' : 'public')
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -99,7 +104,6 @@ export default function CreatePost({ onPostCreated }: CreatePostProps) {
   }
 
   const handleTextareaFocus = () => {
-    // Bootstrap floating label effect এর জন্য
     if (textareaRef.current) {
       textareaRef.current.classList.add('focused')
     }
@@ -110,6 +114,20 @@ export default function CreatePost({ onPostCreated }: CreatePostProps) {
       textareaRef.current.classList.remove('focused')
     }
   }
+
+  // Close privacy menu when clicking outside
+  useState(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (privacyMenuRef.current && !privacyMenuRef.current.contains(event.target as Node)) {
+        setShowPrivacyMenu(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  })
 
   const postOptions = [
     {
@@ -149,7 +167,7 @@ export default function CreatePost({ onPostCreated }: CreatePostProps) {
 
   return (
     <div className="bg-white rounded-lg p-6 mb-4 border border-gray-200 shadow-sm">
-      {/* Text Area Section - Bootstrap Floating Label Style */}
+      {/* Text Area Section */}
       <div className="flex items-start space-x-4 mb-4">
         <div className="flex-shrink-0 cursor-pointer">
           <img 
@@ -200,6 +218,49 @@ export default function CreatePost({ onPostCreated }: CreatePostProps) {
               </button>
             </div>
           )}
+
+          {/* Privacy Toggle Button */}
+          <div className="mt-3 flex items-center">
+            <div className="relative" ref={privacyMenuRef}>
+              <button
+                type="button"
+                onClick={togglePrivacy}
+                className="flex items-center space-x-2 text-gray-600 hover:text-blue-600 transition-colors px-3 py-2 rounded-lg border border-gray-300 hover:border-blue-300 bg-white"
+                disabled={isSubmitting}
+              >
+                {privacy === 'public' ? (
+                  <>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 16 16">
+                      <path fill="#666" d="M8 1a7 7 0 110 14A7 7 0 018 1zm0 1.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM8 4a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 018 4zm0 6a.75.75 0 110 1.5.75.75 0 010-1.5z"/>
+                    </svg>
+                    <span className="text-sm font-medium">Public</span>
+                  </>
+                ) : (
+                  <>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 16 16">
+                      <path fill="#666" d="M8 2a6 6 0 00-6 6c0 1.676.707 3.182 1.833 4.232l.257.22A5.963 5.963 0 008 14a5.963 5.963 0 003.91-1.548l.257-.22A5.977 5.977 0 0014 8a6 6 0 00-6-6zm0 1a5 5 0 015 5c0 1.26-.532 2.398-1.385 3.198l-.172.147A4.963 4.963 0 018 13a4.963 4.963 0 01-3.443-1.355l-.172-.147A4.977 4.977 0 013 8a5 5 0 015-5zm0 2a.75.75 0 00-.75.75v2.5a.75.75 0 001.5 0v-2.5A.75.75 0 008 5zm0 4a.75.75 0 100 1.5.75.75 0 000-1.5z"/>
+                    </svg>
+                    <span className="text-sm font-medium">Private</span>
+                  </>
+                )}
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 12 12">
+                  <path fill="#666" d="M3 4.5l3 3 3-3H3z"/>
+                </svg>
+              </button>
+              
+              {/* Privacy Tooltip */}
+              <div className="absolute bottom-full mb-2 left-0 bg-gray-800 text-white text-xs rounded py-1 px-2 whitespace-nowrap opacity-0 pointer-events-none transition-opacity group-hover:opacity-100">
+                {privacy === 'public' ? 'Everyone can see this post' : 'Only you can see this post'}
+              </div>
+            </div>
+            
+            <span className="ml-3 text-xs text-gray-500">
+              {privacy === 'public' 
+                ? 'This post will be visible to everyone' 
+                : 'This post will only be visible to you'
+              }
+            </span>
+          </div>
         </div>
       </div>
 
