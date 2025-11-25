@@ -98,7 +98,7 @@ function CommentSectionContent({
     <div className="p-6">
       {/* Main Comment Input */}
       <div className="mb-6">
-        <div className="bg-gray-100 rounded-2xl p-2">
+        <div className="bg-muted rounded-2xl p-2">
           <form onSubmit={handleCommentSubmit} className="flex items-center">
             <div className="flex items-center w-full">
               <div className="flex-shrink-0 mr-3">
@@ -113,7 +113,7 @@ function CommentSectionContent({
                   value={commentText}
                   onChange={(e) => setCommentText(e.target.value)}
                   placeholder="Write a comment..."
-                  className="w-full bg-transparent border-none focus:outline-none focus:ring-0 resize-none text-sm text-gray-700 placeholder-gray-500"
+                  className="w-full bg-transparent border-none focus:outline-none focus:ring-0 resize-none text-sm text-foreground placeholder-foreground-muted"
                   rows={1}
                   aria-label="Write a comment"
                 />
@@ -122,7 +122,7 @@ function CommentSectionContent({
             <button
               type="submit"
               disabled={!commentText.trim()}
-              className="ml-2 bg-blue-600 text-white px-3 py-1 rounded-lg text-xl font-semibold hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="ml-2 bg-primary text-primary-foreground px-3 py-1 rounded-lg text-xl font-semibold hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               aria-label="Post comment"
             >
               ⮞

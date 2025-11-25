@@ -9,7 +9,7 @@ export default function PostContent({ post }: PostContentProps) {
   return (
    <div className="p-6 pb-0">
       {/* Post Content */}
-      <h4 className="text-gray-900 mb-4">{post.content}</h4>
+      <h4 className="text-foreground dark:text-foreground mb-4">{post.content}</h4>
       
       {/* Post Image */}
       <div className="mb-6">

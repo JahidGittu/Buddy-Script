@@ -35,12 +35,12 @@ export default function PostHeader({ post, showDropdown, setShowDropdown }: Post
             />
           </div>
           <div>
-            <h4 className="font-semibold text-gray-900 hover:underline cursor-pointer text-base">
+            <h4 className="font-semibold text-foreground dark:text-foreground hover:underline cursor-pointer text-base">
               {post.user.name}
             </h4>
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-foreground-muted dark:text-foreground-muted">
               {displayTime} •{' '}
-              <span className="text-gray-500 cursor-pointer hover:underline">
+              <span className="text-foreground-muted dark:text-foreground-muted cursor-pointer hover:underline">
                 {displayPrivacy}
               </span>
             </p>

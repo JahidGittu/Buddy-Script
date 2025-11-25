@@ -19,7 +19,7 @@ export default function CommentList({
 
   if (optimisticComments.length === 0) {
     return (
-      <div className="text-center py-8 text-gray-500 text-sm">
+      <div className="text-center py-8 text-foreground-muted text-sm">
         No comments yet. Be the first to comment!
       </div>
     )
@@ -32,7 +32,7 @@ export default function CommentList({
         <div className="pt-2">
           <button 
             onClick={onShowMoreComments}
-            className="text-gray-400 text-sm font-semibold hover:underline"
+            className="text-foreground-muted text-sm font-semibold hover:underline"
           >
             View {optimisticComments.length - 2} more comments
           </button>

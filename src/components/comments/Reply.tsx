@@ -117,17 +117,17 @@ function NestedReplyItem({
         <img
           src={nestedReply.user.avatar}
           alt={nestedReply.user.name}
-          className="w-6 h-6 rounded-full border border-gray-300 object-cover"
+          className="w-6 h-6 rounded-full border border-border object-cover"
         />
       </div>
       <div className="flex-1 min-w-0">
-        <div className="bg-gray-100 rounded-2xl p-2 relative">
+        <div className="bg-muted rounded-2xl p-2 relative">
           <div className="flex">
             <div className="flex-1 overflow-hidden">
-              <h4 className="font-semibold text-gray-900 text-xs hover:underline cursor-pointer">
+              <h4 className="font-semibold text-foreground text-xs hover:underline cursor-pointer">
                 {nestedReply.user.name}
               </h4>
-              <p className="text-gray-700 text-xs mt-1 leading-relaxed">
+              <p className="text-foreground text-xs mt-1 leading-relaxed">
                 {nestedReply.content}
               </p>
             </div>
@@ -135,9 +135,9 @@ function NestedReplyItem({
 
           {/* Reaction Badge */}
           {totalReactions > 0 && (
-            <div className="absolute right-2 -bottom-2 bg-white shadow-lg rounded-full px-2 py-1 flex items-center space-x-1 border border-gray-200">
+            <div className="absolute right-2 -bottom-2 bg-card shadow-lg rounded-full px-2 py-1 flex items-center space-x-1 border border-border">
               <span className="text-xs">{getReactionEmoji()}</span>
-              <span className="text-gray-900 text-xs font-semibold">
+              <span className="text-foreground text-xs font-semibold">
                 {totalReactions}
               </span>
             </div>
@@ -167,7 +167,7 @@ function NestedReplyItem({
               <li>
                 <button
                   onClick={() => toggleReply(commentId, nestedReply._id)}
-                  className="text-gray-600 hover:text-blue-600 font-semibold transition-colors"
+                  className="text-foreground-muted hover:text-primary font-semibold transition-colors"
                   aria-label={`Reply to ${nestedReply.user.name}'s reply`}
                 >
                   Reply
@@ -175,7 +175,7 @@ function NestedReplyItem({
               </li>
 
               <li>
-                <span className="text-gray-400">{formatTime(nestedReply.createdAt)}</span>
+                <span className="text-foreground-muted">{formatTime(nestedReply.createdAt)}</span>
               </li>
             </ul>
           </div>
@@ -184,7 +184,7 @@ function NestedReplyItem({
         {/* Nested Reply Input for nested replies */}
         {replyingTo === nestedReplyKey && (
           <div className="mt-3">
-            <div className="bg-gray-100 rounded-2xl p-2">
+            <div className="bg-muted rounded-2xl p-2">
               <form onSubmit={(e) => handleReplySubmit(e, commentId, nestedReply._id)} className="flex items-center">
                 <div className="flex items-center w-full">
                   <div className="flex-shrink-0 mr-3">
@@ -199,7 +199,7 @@ function NestedReplyItem({
                       value={replyText}
                       onChange={(e) => setReplyText(e.target.value)}
                       placeholder="Write a reply..."
-                      className="w-full bg-transparent border-none focus:outline-none focus:ring-0 resize-none text-sm text-gray-700 placeholder-gray-500"
+                      className="w-full bg-transparent border-none focus:outline-none focus:ring-0 resize-none text-sm text-foreground placeholder-foreground-muted"
                       rows={1}
                       autoFocus
                       aria-label="Write a nested reply"
@@ -209,7 +209,7 @@ function NestedReplyItem({
                 <button
                   type="submit"
                   disabled={!replyText.trim()}
-                  className="ml-2 bg-blue-600 text-white px-4 py-1 rounded-lg text-sm font-semibold hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="ml-2 bg-primary text-primary-foreground px-4 py-1 rounded-lg text-sm font-semibold hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Reply
                 </button>
@@ -327,17 +327,17 @@ export default function Reply({ reply, commentId, onReplyAdded }: ReplyProps) {
         <img
           src={reply.user.avatar}
           alt={reply.user.name}
-          className="w-8 h-8 rounded-full border border-gray-300 object-cover"
+          className="w-8 h-8 rounded-full border border-border object-cover"
         />
       </div>
       <div className="flex-1 min-w-0">
-        <div className="bg-gray-100 rounded-2xl p-3 relative">
+        <div className="bg-muted rounded-2xl p-3 relative">
           <div className="flex">
             <div className="flex-1 overflow-hidden">
-              <h4 className="font-semibold text-gray-900 text-sm hover:underline cursor-pointer">
+              <h4 className="font-semibold text-foreground text-sm hover:underline cursor-pointer">
                 {reply.user.name}
               </h4>
-              <p className="text-gray-700 text-xs mt-1 leading-relaxed">
+              <p className="text-foreground text-xs mt-1 leading-relaxed">
                 {reply.content}
               </p>
             </div>
@@ -345,9 +345,9 @@ export default function Reply({ reply, commentId, onReplyAdded }: ReplyProps) {
 
           {/* Reply Reaction Badge */}
           {totalReactions > 0 && (
-            <div className="absolute right-3 -bottom-2 bg-white shadow-lg rounded-full px-2 py-1 flex items-center space-x-1 border border-gray-200">
+            <div className="absolute right-3 -bottom-2 bg-card shadow-lg rounded-full px-2 py-1 flex items-center space-x-1 border border-border">
               <span className="text-xs">{getReactionEmoji()}</span>
-              <span className="text-gray-900 text-xs font-semibold">
+              <span className="text-foreground text-xs font-semibold">
                 {totalReactions}
               </span>
             </div>
@@ -376,7 +376,7 @@ export default function Reply({ reply, commentId, onReplyAdded }: ReplyProps) {
               <li>
                 <button
                   onClick={() => toggleReply(commentId, reply._id)}
-                  className="text-gray-600 hover:text-blue-600 font-semibold transition-colors"
+                  className="text-foreground-muted hover:text-primary font-semibold transition-colors"
                   aria-label={`Reply to ${reply.user.name}'s reply`}
                   aria-expanded={replyingTo === replyKey}
                 >
@@ -385,7 +385,7 @@ export default function Reply({ reply, commentId, onReplyAdded }: ReplyProps) {
               </li>
 
               <li>
-                <span className="text-gray-400">{formatTime(reply.createdAt)}</span>
+                <span className="text-foreground-muted">{formatTime(reply.createdAt)}</span>
               </li>
             </ul>
           </div>
@@ -394,7 +394,7 @@ export default function Reply({ reply, commentId, onReplyAdded }: ReplyProps) {
         {/* Nested Reply Input */}
         {replyingTo === replyKey && (
           <div className="mt-3">
-            <div className="bg-gray-100 rounded-2xl p-2">
+            <div className="bg-muted rounded-2xl p-2">
               <form onSubmit={(e) => handleReplySubmit(e, commentId, reply._id)} className="flex items-center">
                 <div className="flex items-center w-full">
                   <div className="flex-shrink-0 mr-3">
@@ -409,7 +409,7 @@ export default function Reply({ reply, commentId, onReplyAdded }: ReplyProps) {
                       value={replyText}
                       onChange={(e) => setReplyText(e.target.value)}
                       placeholder="Write a reply..."
-                      className="w-full bg-transparent border-none focus:outline-none focus:ring-0 resize-none text-sm text-gray-700 placeholder-gray-500"
+                      className="w-full bg-transparent border-none focus:outline-none focus:ring-0 resize-none text-sm text-foreground placeholder-foreground-muted"
                       rows={1}
                       autoFocus
                       aria-label="Write a nested reply"
@@ -419,7 +419,7 @@ export default function Reply({ reply, commentId, onReplyAdded }: ReplyProps) {
                 <button
                   type="submit"
                   disabled={!replyText.trim()}
-                  className="ml-2 bg-blue-600 text-white px-4 py-1 rounded-lg text-sm font-semibold hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="ml-2 bg-primary text-primary-foreground px-4 py-1 rounded-lg text-sm font-semibold hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Reply
                 </button>
@@ -433,7 +433,7 @@ export default function Reply({ reply, commentId, onReplyAdded }: ReplyProps) {
           <div className="mt-2">
             <button
               onClick={() => setShowNestedReplies(!showNestedReplies)}
-              className="text-blue-600 text-xs font-semibold hover:underline flex items-center space-x-1"
+              className="text-primary text-xs font-semibold hover:underline flex items-center space-x-1"
               aria-expanded={showNestedReplies}
             >
               <span>

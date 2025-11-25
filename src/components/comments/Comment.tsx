@@ -117,18 +117,18 @@ export default function Comment({ comment, onReplyAdded }: CommentProps) {
         <img
           src={comment.user.avatar}
           alt={comment.user.name}
-          className="w-10 h-10 rounded-full border border-gray-300 object-cover"
+          className="w-10 h-10 rounded-full border border-border object-cover"
         />
       </div>
       <div className="flex-1 min-w-0">
         {/* Comment Bubble */}
-        <div className="bg-gray-100 rounded-2xl p-4 relative mb-3">
+        <div className="bg-muted rounded-2xl p-4 relative mb-3">
           <div className="flex">
             <div className="flex-1 overflow-hidden">
-              <h4 className="font-semibold text-gray-900 text-sm hover:underline cursor-pointer">
+              <h4 className="font-semibold text-foreground text-sm hover:underline cursor-pointer">
                 {comment.user.name}
               </h4>
-              <p className="text-gray-700 text-sm mt-1 leading-relaxed">
+              <p className="text-foreground text-sm mt-1 leading-relaxed">
                 {comment.content}
               </p>
             </div>
@@ -136,11 +136,11 @@ export default function Comment({ comment, onReplyAdded }: CommentProps) {
 
           {/* Reaction Badge */}
           {totalReactions > 0 && (
-            <div className="absolute right-3 -bottom-2 bg-white shadow-lg rounded-full px-2 py-1 flex items-center space-x-1 border border-gray-200">
+            <div className="absolute right-3 -bottom-2 bg-card shadow-lg rounded-full px-2 py-1 flex items-center space-x-1 border border-border">
               <div className="flex items-center space-x-1">
                 <span className="text-xs">{getReactionEmoji()}</span>
               </div>
-              <span className="text-gray-900 text-xs font-semibold">
+              <span className="text-foreground text-xs font-semibold">
                 {totalReactions}
               </span>
             </div>
@@ -166,7 +166,7 @@ export default function Comment({ comment, onReplyAdded }: CommentProps) {
               <li>
                 <button
                   onClick={() => toggleReply(comment._id || '')}
-                  className="text-gray-600 hover:text-blue-600 font-semibold transition-colors"
+                  className="text-foreground-muted hover:text-primary font-semibold transition-colors"
                   aria-label={`Reply to ${comment.user.name}'s comment`}
                   aria-expanded={replyingTo === comment._id}
                 >
@@ -174,7 +174,7 @@ export default function Comment({ comment, onReplyAdded }: CommentProps) {
                 </button>
               </li>
               <li>
-                <span className="text-gray-400">{formatTime(comment.createdAt)}</span>
+                <span className="text-foreground-muted">{formatTime(comment.createdAt)}</span>
               </li>
             </ul>
           </div>
@@ -183,7 +183,7 @@ export default function Comment({ comment, onReplyAdded }: CommentProps) {
         {/* Reply Input (direct reply to comment) */}
         {replyingTo === comment._id && (
           <div className="ml-4 mt-3">
-            <div className="bg-gray-100 rounded-2xl p-2">
+            <div className="bg-muted rounded-2xl p-2">
               <form onSubmit={(e) => handleReplySubmit(e, comment._id || '')} className="flex items-center">
                 <div className="flex items-center w-full">
                   <div className="flex-shrink-0 mr-3">
@@ -198,7 +198,7 @@ export default function Comment({ comment, onReplyAdded }: CommentProps) {
                       value={replyText}
                       onChange={(e) => setReplyText(e.target.value)}
                       placeholder="Write a reply..."
-                      className="w-full bg-transparent border-none focus:outline-none focus:ring-0 resize-none text-sm text-gray-700 placeholder-gray-500"
+                      className="w-full bg-transparent border-none focus:outline-none focus:ring-0 resize-none text-sm text-foreground placeholder-foreground-muted"
                       rows={1}
                       autoFocus
                       aria-label="Write a reply"
@@ -208,7 +208,7 @@ export default function Comment({ comment, onReplyAdded }: CommentProps) {
                 <button
                   type="submit"
                   disabled={!replyText.trim()}
-                  className="ml-2 bg-blue-600 text-white px-4 py-1 rounded-lg text-sm font-semibold hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="ml-2 bg-primary text-primary-foreground px-4 py-1 rounded-lg text-sm font-semibold hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Reply
                 </button>

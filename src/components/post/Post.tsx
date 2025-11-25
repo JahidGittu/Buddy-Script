@@ -110,7 +110,7 @@ export default function Post({ post, onReactionUpdate, onCommentAdded }: PostPro
   }
 
   return (
-    <div className="bg-white rounded-lg mb-4 border border-gray-200 shadow-sm">
+    <div className="bg-background-secondary dark:bg-background-secondary rounded-lg mb-4 border border-border dark:border-border shadow-sm">
       {/* Post Header */}
       <PostHeader 
         post={post}

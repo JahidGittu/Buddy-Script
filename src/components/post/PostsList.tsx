@@ -16,11 +16,9 @@ export default function PostsList({ refreshTrigger = 0 }: PostsListProps) {
   const [error, setError] = useState<string>('')
   const { data: session } = useSession()
 
-  // src/components/post/PostsList.tsx - fetchPosts function আপডেট করুন
   const fetchPosts = async () => {
     try {
       setLoading(true)
-      // 🔄 CHANGE THIS LINE - নতুন API endpoint ব্যবহার করুন
       const response = await fetch('/api/posts/get')
 
       if (!response.ok) {
@@ -110,18 +108,18 @@ export default function PostsList({ refreshTrigger = 0 }: PostsListProps) {
   if (loading) {
     return (
       <div className="flex justify-center items-center py-8">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
       </div>
     )
   }
 
   if (error) {
     return (
-      <div className="text-center py-8 text-red-600">
+      <div className="text-center py-8 text-destructive">
         {error}
         <button
           onClick={fetchPosts}
-          className="ml-4 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+          className="ml-4 bg-primary text-primary-foreground px-4 py-2 rounded hover:bg-primary-dark"
         >
           Retry
         </button>
@@ -131,7 +129,7 @@ export default function PostsList({ refreshTrigger = 0 }: PostsListProps) {
 
   if (posts.length === 0) {
     return (
-      <div className="text-center py-8 text-gray-500">
+      <div className="text-center py-8 text-foreground-muted">
         No posts yet. Be the first to share something!
       </div>
     )
