@@ -1,10 +1,9 @@
-// src/app/page.tsx
-import FeedContent from '@/components/FeedContent'
 import Navbar from '@/components/Navbar/Navbar'
 import LeftSidebar from '@/components/SIdebar/Left-Sidebar'
 import RightSidebar from '@/components/SIdebar/Right-SIdebar'
 import PrivateRoute from './route/PrivateRoute'
 import ThemeToggle from '@/components/ui/ThemeToggle'
+import FeedContent from '@/components/FeedContent'
 
 export default function Home() {
   return (

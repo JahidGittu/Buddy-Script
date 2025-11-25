@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, FormEvent, KeyboardEvent, ClipboardEvent } from 'react';
 
 interface VerifyOtpProps {
   email: string;
@@ -8,6 +8,11 @@ interface VerifyOtpProps {
   onVerify: (email: string) => void;
   onResend: () => void;
   onBack?: () => void;
+}
+
+interface ApiResponse {
+  message?: string;
+  error?: string;
 }
 
 export default function VerifyOtp({ email, type, onVerify, onResend, onBack }: VerifyOtpProps) {
@@ -40,13 +45,13 @@ export default function VerifyOtp({ email, type, onVerify, onResend, onBack }: V
     }
   };
 
-  const handleKeyDown = (index: number, e: React.KeyboardEvent) => {
+  const handleKeyDown = (index: number, e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Backspace' && !otp[index] && index > 0) {
       inputRefs.current[index - 1]?.focus();
     }
   };
 
-  const handlePaste = (e: React.ClipboardEvent) => {
+  const handlePaste = (e: ClipboardEvent<HTMLInputElement>) => {
     e.preventDefault();
     const pastedData = e.clipboardData.getData('text');
     const pastedOtp = pastedData.slice(0, 6).split('');
@@ -65,7 +70,7 @@ export default function VerifyOtp({ email, type, onVerify, onResend, onBack }: V
     }
   };
 
-  const handleVerify = async (e: React.FormEvent) => {
+  const handleVerify = async (e: FormEvent) => {
     e.preventDefault();
     setError('');
     setSuccess('');
@@ -91,16 +96,16 @@ export default function VerifyOtp({ email, type, onVerify, onResend, onBack }: V
         }),
       });
 
-      const data = await response.json();
+      const data: ApiResponse = await response.json();
 
       if (!response.ok) {
         throw new Error(data.error || 'Verification failed');
       }
 
-      setSuccess(data.message);
+      setSuccess(data.message || 'Verification successful');
       onVerify(email);
-    } catch (error: any) {
-      setError(error.message || 'Verification failed. Please try again.');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Verification failed. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -122,17 +127,17 @@ export default function VerifyOtp({ email, type, onVerify, onResend, onBack }: V
         }),
       });
 
-      const data = await response.json();
+      const data: ApiResponse = await response.json();
 
       if (!response.ok) {
         throw new Error(data.error || 'Failed to resend OTP');
       }
 
-      setSuccess('OTP sent successfully!');
+      setSuccess(data.message || 'OTP sent successfully!');
       setCountdown(60);
       onResend();
-    } catch (error: any) {
-      setError(error.message || 'Failed to resend OTP');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Failed to resend OTP');
     } finally {
       setResendLoading(false);
     }

@@ -1,4 +1,3 @@
-// src/models/Post.ts
 import mongoose from 'mongoose';
 
 const UserReactionSchema = new mongoose.Schema({
@@ -22,7 +21,22 @@ const UserReactionSchema = new mongoose.Schema({
   reactedAt: {
     type: Date,
     default: Date.now
+  },
+  reactionType: {
+    type: String,
+    enum: ['like', 'love', 'haha', 'wow', 'sad', 'angry'],
+    default: 'like'
   }
+});
+
+// Comment Reactions Schema (unified for all reaction types)
+const CommentReactionsSchema = new mongoose.Schema({
+  likes: [UserReactionSchema],
+  loves: [UserReactionSchema],
+  hahas: [UserReactionSchema],
+  wows: [UserReactionSchema],
+  sads: [UserReactionSchema],
+  angrys: [UserReactionSchema]
 });
 
 // Define NestedReplySchema first
@@ -51,7 +65,7 @@ const NestedReplySchema = new mongoose.Schema({
       required: true
     }
   },
-  likes: [UserReactionSchema],
+  reactions: CommentReactionsSchema, // Changed from 'likes' to 'reactions'
   createdAt: {
     type: Date,
     default: Date.now
@@ -84,8 +98,8 @@ const ReplySchema = new mongoose.Schema({
       required: true
     }
   },
-  likes: [UserReactionSchema],
-  replies: [NestedReplySchema], // Add nested replies support
+  reactions: CommentReactionsSchema, // Changed from 'likes' to 'reactions'
+  replies: [NestedReplySchema],
   createdAt: {
     type: Date,
     default: Date.now
@@ -117,12 +131,22 @@ const CommentSchema = new mongoose.Schema({
       required: true
     }
   },
-  likes: [UserReactionSchema],
+  reactions: CommentReactionsSchema, // Changed from 'likes' to 'reactions'
   replies: [ReplySchema],
   createdAt: {
     type: Date,
     default: Date.now
   }
+});
+
+// Post Reactions Schema (keep existing for posts)
+const PostReactionsSchema = new mongoose.Schema({
+  likes: [UserReactionSchema],
+  loves: [UserReactionSchema],
+  hahas: [UserReactionSchema],
+  wows: [UserReactionSchema],
+  sads: [UserReactionSchema],
+  angrys: [UserReactionSchema]
 });
 
 const PostSchema = new mongoose.Schema({
@@ -159,14 +183,7 @@ const PostSchema = new mongoose.Schema({
     enum: ['public', 'private'],
     default: 'public'
   },
-  reactions: {
-    likes: [UserReactionSchema],
-    loves: [UserReactionSchema],
-    hahas: [UserReactionSchema],
-    wows: [UserReactionSchema],
-    sads: [UserReactionSchema],
-    angrys: [UserReactionSchema]
-  },
+  reactions: PostReactionsSchema, // Keep existing post reactions
   comments: [CommentSchema],
   shares: {
     type: Number,

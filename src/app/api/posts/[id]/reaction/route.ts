@@ -5,6 +5,16 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { connectToDatabase } from '@/lib/mongodb';
 import Post from '@/models/Post';
 
+interface UserReactionData {
+  userId: string;
+  email: string;
+  name: string;
+  avatar: string;
+  reactedAt: Date;
+}
+
+type ReactionType = 'like' | 'love' | 'haha' | 'wow' | 'sad' | 'angry' | '';
+
 export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -13,12 +23,12 @@ export async function POST(
     const startTime = Date.now();
     const session = await getServerSession(authOptions);
     
-    if (!session) {
+    if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const { id: postId } = await params;
-    const { reaction } = await request.json();
+    const { reaction }: { reaction: ReactionType } = await request.json();
 
     // Allow empty string to remove reaction, or valid reaction types
     if (reaction === undefined || (reaction !== '' && !['like', 'love', 'haha', 'wow', 'sad', 'angry'].includes(reaction))) {
@@ -36,8 +46,8 @@ export async function POST(
       return NextResponse.json({ error: 'Post not found' }, { status: 404 });
     }
 
-    // Prepare user reaction data from session (no need to fetch User)
-    const userReactionData = {
+    // Prepare user reaction data from session
+    const userReactionData: UserReactionData = {
       userId: session.user.id,
       email: session.user.email || '',
       name: session.user.name || 'User',
@@ -50,7 +60,7 @@ export async function POST(
     
     reactionTypes.forEach(type => {
       post.reactions[type] = post.reactions[type].filter(
-        (reaction: any) => reaction.userId.toString() !== session.user.id
+        (reaction: UserReactionData) => reaction.userId.toString() !== session.user.id
       );
     });
 

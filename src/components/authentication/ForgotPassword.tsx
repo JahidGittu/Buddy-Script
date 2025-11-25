@@ -1,10 +1,14 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, FormEvent } from 'react';
 import VerifyOtp from './VerifyOtp';
 
 interface ForgotPasswordProps {
   onBackToLogin: () => void;
+}
+
+interface ApiError {
+  error: string;
 }
 
 export default function ForgotPassword({ onBackToLogin }: ForgotPasswordProps) {
@@ -14,7 +18,7 @@ export default function ForgotPassword({ onBackToLogin }: ForgotPasswordProps) {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
-  const handleSendOtp = async (e: React.FormEvent) => {
+  const handleSendOtp = async (e: FormEvent) => {
     e.preventDefault();
     setError('');
     setSuccess('');
@@ -29,16 +33,16 @@ export default function ForgotPassword({ onBackToLogin }: ForgotPasswordProps) {
         body: JSON.stringify({ email }),
       });
 
-      const data = await response.json();
+      const data: { message?: string; error?: string } = await response.json();
 
       if (!response.ok) {
         throw new Error(data.error || 'Failed to send OTP');
       }
 
-      setSuccess(data.message);
+      setSuccess(data.message || 'OTP sent successfully');
       setStep('otp');
-    } catch (error: any) {
-      setError(error.message || 'Failed to send OTP');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Failed to send OTP');
     } finally {
       setLoading(false);
     }
@@ -53,7 +57,7 @@ export default function ForgotPassword({ onBackToLogin }: ForgotPasswordProps) {
     setSuccess('OTP sent successfully!');
   };
 
-  const handleResetPassword = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleResetPassword = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError('');
     setSuccess('');
@@ -78,18 +82,18 @@ export default function ForgotPassword({ onBackToLogin }: ForgotPasswordProps) {
         body: JSON.stringify({ email, password }),
       });
 
-      const data = await response.json();
+      const data: { message?: string; error?: string } = await response.json();
 
       if (!response.ok) {
         throw new Error(data.error || 'Failed to reset password');
       }
 
-      setSuccess(data.message);
+      setSuccess(data.message || 'Password reset successfully');
       setTimeout(() => {
         onBackToLogin();
       }, 2000);
-    } catch (error: any) {
-      setError(error.message || 'Failed to reset password');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Failed to reset password');
     } finally {
       setLoading(false);
     }

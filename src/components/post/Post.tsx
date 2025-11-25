@@ -12,7 +12,16 @@ import { useSession } from 'next-auth/react'
 interface PostProps {
   post: PostType
   onReactionUpdate?: (postId: string, reaction: string) => void
-  onCommentAdded?: () => void // Add this prop for comment refresh
+  onCommentAdded?: () => void
+}
+
+// Use the same type as in your PostReactions component
+interface UserReactionType {
+  userId: string;
+  email: string;
+  name: string;
+  avatar: string;
+  reactedAt: string; // This should be string, not Date, because JSON serializes dates to strings
 }
 
 export default function Post({ post, onReactionUpdate, onCommentAdded }: PostProps) {
@@ -21,25 +30,25 @@ export default function Post({ post, onReactionUpdate, onCommentAdded }: PostPro
   const [showAllComments, setShowAllComments] = useState(false)
   const [activeReaction, setActiveReaction] = useState('')
 
-  // Get current user's reaction for this post - SIMPLIFIED VERSION
-  const getCurrentUserReaction = () => {
+  // Get current user's reaction for this post
+  const getCurrentUserReaction = (): string => {
     if (!session?.user?.id) return '';
     
     const userId = session.user.id;
     
     // Direct check without complex logic
-    if (post.reactions.likes.some(reaction => reaction.userId === userId)) return 'like';
-    if (post.reactions.loves.some(reaction => reaction.userId === userId)) return 'love';
-    if (post.reactions.hahas.some(reaction => reaction.userId === userId)) return 'haha';
-    if (post.reactions.wows.some(reaction => reaction.userId === userId)) return 'wow';
-    if (post.reactions.sads.some(reaction => reaction.userId === userId)) return 'sad';
-    if (post.reactions.angrys.some(reaction => reaction.userId === userId)) return 'angry';
+    if (post.reactions.likes.some((reaction: UserReactionType) => reaction.userId === userId)) return 'like';
+    if (post.reactions.loves.some((reaction: UserReactionType) => reaction.userId === userId)) return 'love';
+    if (post.reactions.hahas.some((reaction: UserReactionType) => reaction.userId === userId)) return 'haha';
+    if (post.reactions.wows.some((reaction: UserReactionType) => reaction.userId === userId)) return 'wow';
+    if (post.reactions.sads.some((reaction: UserReactionType) => reaction.userId === userId)) return 'sad';
+    if (post.reactions.angrys.some((reaction: UserReactionType) => reaction.userId === userId)) return 'angry';
     
     return '';
   }
 
   // Get total reactions count
-  const getTotalReactions = () => {
+  const getTotalReactions = (): number => {
     return (
       post.reactions.likes.length +
       post.reactions.loves.length +
@@ -51,8 +60,8 @@ export default function Post({ post, onReactionUpdate, onCommentAdded }: PostPro
   }
 
   // Get reaction avatars for display
-  const getReactionAvatars = () => {
-    const allReactions = [
+  const getReactionAvatars = (): UserReactionType[] => {
+    const allReactions: UserReactionType[] = [
       ...post.reactions.likes,
       ...post.reactions.loves,
       ...post.reactions.hahas,
@@ -62,7 +71,7 @@ export default function Post({ post, onReactionUpdate, onCommentAdded }: PostPro
     ];
 
     // Remove duplicates by userId
-    const uniqueReactions = allReactions.reduce((acc: any[], current) => {
+    const uniqueReactions = allReactions.reduce((acc: UserReactionType[], current: UserReactionType) => {
       const exists = acc.find(item => item.userId === current.userId);
       if (!exists) {
         acc.push(current);
