@@ -44,7 +44,19 @@ next-env.d.ts
 
 
 # Sequence for git commiting
-components
+
+comments
+
+post
+
+Sidebar
+
+ui
+
+FeedContent.tsx
+
+StoriesSection.tsx
+
 
 posts
 
