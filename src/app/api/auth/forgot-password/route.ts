@@ -23,18 +23,14 @@ export async function POST(request: NextRequest) {
       email: normalizedEmail 
     });
     
-    if (!user) {
-      // Don't reveal if user exists or not
-      return NextResponse.json(
-        { message: 'If the email exists, you will receive an OTP shortly.' },
-        { status: 200 }
-      );
+    // Always return the same message regardless of user existence
+    // This prevents email enumeration attacks
+    if (user) {
+      // Generate and send OTP only if user exists
+      const otp = generateOTP();
+      await storeOTP(normalizedEmail, otp, 'reset_password');
+      await sendOTPEmail(normalizedEmail, otp, 'reset_password');
     }
-
-    // Generate and send OTP
-    const otp = generateOTP();
-    await storeOTP(normalizedEmail, otp, 'reset_password');
-    await sendOTPEmail(normalizedEmail, otp, 'reset_password');
 
     return NextResponse.json(
       { 
