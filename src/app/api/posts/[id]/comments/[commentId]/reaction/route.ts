@@ -153,7 +153,7 @@ export async function POST(
       return NextResponse.json({ error: 'Updated target not found' }, { status: 404 });
     }
 
-    // Calculate total reactions
+    // Calculate total reactions - USING ONLY NEW STRUCTURE
     const totalReactions = calculateTotalReactions(updatedTarget);
 
     // Find current user reaction
@@ -175,32 +175,37 @@ export async function POST(
   }
 }
 
-// Helper function to calculate total reactions
+// Helper function to calculate total reactions - FIXED VERSION
 function calculateTotalReactions(target: any): number {
-  if (!target.reactions) return 0;
-  
-  const reactionTypes = ['likes', 'loves', 'hahas', 'wows', 'sads', 'angrys'] as const;
-  let total = 0;
+  // Always use new reactions structure only
+  if (target.reactions) {
+    const reactionTypes = ['likes', 'loves', 'hahas', 'wows', 'sads', 'angrys'] as const;
+    let total = 0;
 
-  reactionTypes.forEach(type => {
-    const reactions = target.reactions[type] || [];
-    total += reactions.length;
-  });
+    reactionTypes.forEach(type => {
+      const reactions = target.reactions[type] || [];
+      total += reactions.length;
+    });
 
-  return total;
+    return total;
+  }
+
+  // If no reactions structure, return 0 (ignore old likes structure)
+  return 0;
 }
 
 // Helper function to find user's current reaction
 function findUserReaction(target: any, userId: string): string {
-  if (!target.reactions) return '';
-
-  const reactionTypes = ['likes', 'loves', 'hahas', 'wows', 'sads', 'angrys'] as const;
-  
-  for (const type of reactionTypes) {
-    const reactions = target.reactions[type] || [];
-    const userReaction = reactions.find((r: any) => r.userId.toString() === userId);
-    if (userReaction) {
-      return type.replace('s', '');
+  // Always use new reactions structure only
+  if (target.reactions) {
+    const reactionTypes = ['likes', 'loves', 'hahas', 'wows', 'sads', 'angrys'] as const;
+    
+    for (const type of reactionTypes) {
+      const reactions = target.reactions[type] || [];
+      const userReaction = reactions.find((r: any) => r.userId.toString() === userId);
+      if (userReaction) {
+        return type.replace('s', '');
+      }
     }
   }
 

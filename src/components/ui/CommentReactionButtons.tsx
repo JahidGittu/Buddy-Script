@@ -63,21 +63,10 @@ export default function CommentReactionButtons({
 
   const updateReaction = useCallback(async (reactionType: string) => {
     if (!session?.user?.id) {
-      console.log('❌ No session user ID');
       return;
     }
 
     const finalReaction = activeReaction === reactionType ? '' : reactionType;
-
-    console.log('🔄 Starting reaction update:', {
-      currentReaction: activeReaction,
-      newReaction: finalReaction,
-      commentId,
-      postId,
-      isReply,
-      parentCommentId,
-      parentReplyId
-    });
 
     // Optimistic UI update
     const previousReaction = activeReaction;
@@ -92,8 +81,6 @@ export default function CommentReactionButtons({
         ...(parentReplyId && { parentReplyId })
       };
 
-      console.log('📤 Sending request:', bodyData);
-
       const response = await fetch(apiUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -106,7 +93,6 @@ export default function CommentReactionButtons({
       }
 
       const result = await response.json();
-      console.log('✅ API Response:', result);
 
       // Update parent component with server data
       if (result.updatedData && onReactionUpdate) {

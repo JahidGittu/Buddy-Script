@@ -1,3 +1,4 @@
+
 'use client'
 
 import { useMemo, useState } from 'react'
@@ -29,7 +30,7 @@ export default function Comment({ comment, onReplyAdded }: CommentProps) {
     currentUserReaction: ''
   });
 
-  // FIXED currentUserReaction with local state
+  // FIXED: Consistent currentUserReaction with local state
   const currentUserReaction = useMemo(() => {
     if (localReactionData.currentUserReaction) {
       return localReactionData.currentUserReaction;
@@ -39,7 +40,7 @@ export default function Comment({ comment, onReplyAdded }: CommentProps) {
 
     const userId = session.user.id;
 
-    // Check new reactions structure first
+    // Always use new reactions structure
     if (comment.reactions) {
       const reactionTypes = ['likes', 'loves', 'hahas', 'wows', 'sads', 'angrys'] as const;
 
@@ -51,21 +52,16 @@ export default function Comment({ comment, onReplyAdded }: CommentProps) {
       }
     }
 
-    // Fallback to old structure
-    if (comment.likes?.some((like: UserReactionType) => like.userId === userId)) {
-      return 'like';
-    }
-
     return '';
-  }, [comment.reactions, comment.likes, session?.user?.id, localReactionData.currentUserReaction]);
+  }, [comment.reactions, session?.user?.id, localReactionData.currentUserReaction]);
 
-  // FIXED reaction counting with local state
+  // FIXED: Consistent reaction counting with local state
   const totalReactions = useMemo(() => {
     if (localReactionData.totalReactions > 0) {
       return localReactionData.totalReactions;
     }
 
-    // Handle new reactions structure
+    // Always use new reactions structure only
     if (comment.reactions) {
       const total = Object.values(comment.reactions).reduce((total: number, reactionArray: any) => {
         const count = Array.isArray(reactionArray) ? reactionArray.length : 0;
@@ -74,9 +70,8 @@ export default function Comment({ comment, onReplyAdded }: CommentProps) {
       return total;
     }
 
-    // Fallback to old likes structure
-    return comment.likes?.length || 0;
-  }, [comment.reactions, comment.likes, localReactionData.totalReactions]);
+    return 0;
+  }, [comment.reactions, localReactionData.totalReactions]);
 
   const formatTime = (dateString: string) => {
     const date = new Date(dateString);

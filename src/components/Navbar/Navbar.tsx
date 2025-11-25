@@ -125,7 +125,7 @@ const Navbar = () => {
     <div>
       {/* Desktop Navigation */}
       <nav className="hidden lg:block fixed top-0 left-0 right-0 z-50 bg-background-secondary pt-2">
-        <div className="container mx-auto px-4">
+        <div className="max-w-11/12 mx-auto px-4">
           <div className="flex items-center justify-between">
             {/* Logo */}
             <div className="flex items-center">

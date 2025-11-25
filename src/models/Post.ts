@@ -1,3 +1,5 @@
+// src/models/Post.ts
+
 import mongoose from 'mongoose';
 
 const UserReactionSchema = new mongoose.Schema({

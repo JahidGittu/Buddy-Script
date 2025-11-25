@@ -1,3 +1,5 @@
+
+
 'use client'
 
 import { useMemo, useState } from 'react'
@@ -33,7 +35,7 @@ function NestedReplyItem({
     currentUserReaction: ''
   });
 
-  // SAFE ACCESS: Handle both old 'likes' and new 'reactions' structure
+  // FIXED: Consistent currentUserReaction for nested replies
   const currentUserReaction = useMemo(() => {
     if (localReactionData.currentUserReaction) {
       return localReactionData.currentUserReaction;
@@ -43,7 +45,7 @@ function NestedReplyItem({
 
     const userId = session.user.id;
 
-    // Check if we have the new reactions structure
+    // Always use new reactions structure
     if (nestedReply.reactions) {
       const reactionTypes = ['likes', 'loves', 'hahas', 'wows', 'sads', 'angrys'] as const;
 
@@ -54,27 +56,24 @@ function NestedReplyItem({
       }
     }
 
-    // Fallback to old 'likes' structure for backward compatibility
-    if (nestedReply.likes?.some((reaction: UserReactionType) => reaction.userId === userId)) {
-      return 'like';
-    }
-
     return '';
-  }, [nestedReply.reactions, nestedReply.likes, session?.user?.id, localReactionData.currentUserReaction])
+  }, [nestedReply.reactions, session?.user?.id, localReactionData.currentUserReaction])
 
+  // FIXED: Consistent reaction counting for nested replies
   const totalReactions = useMemo(() => {
     if (localReactionData.totalReactions > 0) {
       return localReactionData.totalReactions;
     }
 
-    // Handle new reactions structure
+    // Always use new reactions structure only
     if (nestedReply.reactions) {
-      return Object.values(nestedReply.reactions).reduce((total: number, arr: any) => total + (arr?.length || 0), 0);
+      return Object.values(nestedReply.reactions).reduce((total: number, arr: any) => {
+        return total + (Array.isArray(arr) ? arr.length : 0);
+      }, 0);
     }
 
-    // Fallback to old likes structure
-    return nestedReply.likes?.length || 0;
-  }, [nestedReply.reactions, nestedReply.likes, localReactionData.totalReactions])
+    return 0;
+  }, [nestedReply.reactions, localReactionData.totalReactions])
 
   const formatTime = (dateString: string) => {
     const date = new Date(dateString);
@@ -152,7 +151,6 @@ function NestedReplyItem({
                   parentCommentId={commentId}
                   parentReplyId={parentReplyId}
                   onReactionUpdate={(data) => {
-                    console.log('🔄 Nested reply reaction update:', data);
                     setLocalReactionData({
                       totalReactions: data.totalReactions,
                       currentUserReaction: data.currentUserReaction
@@ -238,7 +236,7 @@ export default function Reply({ reply, commentId, onReplyAdded }: ReplyProps) {
     currentUserReaction: ''
   });
 
-  // SAFE ACCESS: Handle both old 'likes' and new 'reactions' structure
+  // FIXED: Consistent currentUserReaction for replies
   const currentUserReaction = useMemo(() => {
     if (localReactionData.currentUserReaction) {
       return localReactionData.currentUserReaction;
@@ -248,7 +246,7 @@ export default function Reply({ reply, commentId, onReplyAdded }: ReplyProps) {
 
     const userId = session.user.id;
 
-    // Check if we have the new reactions structure
+    // Always use new reactions structure
     if (reply.reactions) {
       const reactionTypes = ['likes', 'loves', 'hahas', 'wows', 'sads', 'angrys'] as const;
 
@@ -259,27 +257,24 @@ export default function Reply({ reply, commentId, onReplyAdded }: ReplyProps) {
       }
     }
 
-    // Fallback to old 'likes' structure for backward compatibility
-    if (reply.likes?.some((reaction: UserReactionType) => reaction.userId === userId)) {
-      return 'like';
-    }
-
     return '';
-  }, [reply.reactions, reply.likes, session?.user?.id, localReactionData.currentUserReaction])
+  }, [reply.reactions, session?.user?.id, localReactionData.currentUserReaction])
 
+  // FIXED: Consistent reaction counting for replies
   const totalReactions = useMemo(() => {
     if (localReactionData.totalReactions > 0) {
       return localReactionData.totalReactions;
     }
 
-    // Handle new reactions structure
+    // Always use new reactions structure only
     if (reply.reactions) {
-      return Object.values(reply.reactions).reduce((total: number, arr: any) => total + (arr?.length || 0), 0);
+      return Object.values(reply.reactions).reduce((total: number, arr: any) => {
+        return total + (Array.isArray(arr) ? arr.length : 0);
+      }, 0);
     }
 
-    // Fallback to old likes structure
-    return reply.likes?.length || 0;
-  }, [reply.reactions, reply.likes, localReactionData.totalReactions])
+    return 0;
+  }, [reply.reactions, localReactionData.totalReactions])
 
   const formatTime = (dateString: string) => {
     const date = new Date(dateString);
@@ -307,16 +302,6 @@ export default function Reply({ reply, commentId, onReplyAdded }: ReplyProps) {
 
   const hasNestedReplies = reply.replies && reply.replies.length > 0;
   const replyKey = `${commentId}-${reply._id}`;
-
-  // Debug info
-  console.log('🔍 Reply Component Debug:', {
-    replyId: reply._id,
-    commentId,
-    postId,
-    currentUserReaction,
-    totalReactions,
-    hasNestedReplies: reply.replies?.length
-  });
 
   return (
     <div className="flex space-x-3">
@@ -367,7 +352,6 @@ export default function Reply({ reply, commentId, onReplyAdded }: ReplyProps) {
                   isReply={true}
                   parentCommentId={commentId}
                   onReactionUpdate={(data) => {
-                    console.log('🔄 Reply reaction update:', data);
                     setLocalReactionData({
                       totalReactions: data.totalReactions,
                       currentUserReaction: data.currentUserReaction
@@ -378,10 +362,7 @@ export default function Reply({ reply, commentId, onReplyAdded }: ReplyProps) {
 
               <li>
                 <button
-                  onClick={() => {
-                    console.log('Toggle reply for:', reply._id);
-                    toggleReply(commentId, reply._id);
-                  }}
+                  onClick={() => toggleReply(commentId, reply._id)}
                   className="text-gray-600 hover:text-blue-600 font-semibold transition-colors"
                   aria-label={`Reply to ${reply.user.name}'s reply`}
                   aria-expanded={replyingTo === replyKey}
@@ -401,10 +382,7 @@ export default function Reply({ reply, commentId, onReplyAdded }: ReplyProps) {
         {replyingTo === replyKey && (
           <div className="mt-3">
             <div className="bg-gray-100 rounded-2xl p-2">
-              <form onSubmit={(e) => {
-                console.log('Submitting nested reply to:', reply._id);
-                handleReplySubmit(e, commentId, reply._id);
-              }} className="flex items-center">
+              <form onSubmit={(e) => handleReplySubmit(e, commentId, reply._id)} className="flex items-center">
                 <div className="flex items-center w-full">
                   <div className="flex-shrink-0 mr-3">
                     <img
@@ -441,10 +419,7 @@ export default function Reply({ reply, commentId, onReplyAdded }: ReplyProps) {
         {hasNestedReplies && (
           <div className="mt-2">
             <button
-              onClick={() => {
-                console.log('Toggle nested replies for reply:', reply._id);
-                setShowNestedReplies(!showNestedReplies);
-              }}
+              onClick={() => setShowNestedReplies(!showNestedReplies)}
               className="text-blue-600 text-xs font-semibold hover:underline flex items-center space-x-1"
               aria-expanded={showNestedReplies}
             >
