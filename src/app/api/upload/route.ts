@@ -2,9 +2,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
-import { writeFile, mkdir } from 'fs/promises';
-import path from 'path';
-import { v4 as uuidv4 } from 'uuid';
 
 export async function POST(request: NextRequest) {
   try {
@@ -30,33 +27,48 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'File size must be less than 5MB' }, { status: 400 });
     }
 
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
+    console.log('Starting Cloudinary upload for file:', file.name, 'Size:', file.size);
 
-    // Generate unique filename
-    const fileExtension = file.name.split('.').pop();
-    const fileName = `${uuidv4()}.${fileExtension}`;
-    const uploadDir = path.join(process.cwd(), 'public', 'uploads');
+    // Create FormData for Cloudinary
+    const cloudinaryFormData = new FormData();
+    cloudinaryFormData.append('file', file);
+    cloudinaryFormData.append('upload_preset', 'buddy-script'); // Make sure this matches your preset name
+    cloudinaryFormData.append('folder', 'buddy-script');
 
-    // Ensure upload directory exists
-    try {
-      await mkdir(uploadDir, { recursive: true });
-    } catch (error) {
-      console.error('Error creating upload directory:', error);
+    const cloudinaryUrl = `https://api.cloudinary.com/v1_1/dkrtcdvnn/image/upload`;
+
+    console.log('Uploading to Cloudinary URL:', cloudinaryUrl);
+
+    const cloudinaryResponse = await fetch(cloudinaryUrl, {
+      method: 'POST',
+      body: cloudinaryFormData,
+    });
+
+    console.log('Cloudinary response status:', cloudinaryResponse.status);
+
+    if (!cloudinaryResponse.ok) {
+      const errorText = await cloudinaryResponse.text();
+      console.error('Cloudinary upload failed:', errorText);
+      throw new Error(`Cloudinary upload failed: ${cloudinaryResponse.status} ${errorText}`);
     }
 
-    // Save file
-    const filePath = path.join(uploadDir, fileName);
-    await writeFile(filePath, buffer);
+    const cloudinaryData = await cloudinaryResponse.json();
+    console.log('Cloudinary upload successful:', cloudinaryData.secure_url);
 
-    // Return the public URL
-    const imageUrl = `/uploads/${fileName}`;
+    return NextResponse.json({ 
+      url: cloudinaryData.secure_url 
+    });
 
-    return NextResponse.json({ url: imageUrl });
   } catch (error) {
-    console.error('Error uploading file:', error);
+    console.error('Error uploading file to Cloudinary:', error);
+    
+    let errorMessage = 'Failed to upload image';
+    if (error instanceof Error) {
+      errorMessage = error.message;
+    }
+    
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: errorMessage },
       { status: 500 }
     );
   }

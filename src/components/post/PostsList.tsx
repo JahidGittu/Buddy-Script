@@ -16,15 +16,17 @@ export default function PostsList({ refreshTrigger = 0 }: PostsListProps) {
   const [error, setError] = useState<string>('')
   const { data: session } = useSession()
 
+  // src/components/post/PostsList.tsx - fetchPosts function আপডেট করুন
   const fetchPosts = async () => {
     try {
       setLoading(true)
-      const response = await fetch('/api/posts')
-      
+      // 🔄 CHANGE THIS LINE - নতুন API endpoint ব্যবহার করুন
+      const response = await fetch('/api/posts/get')
+
       if (!response.ok) {
         throw new Error('Failed to fetch posts')
       }
-      
+
       const data = await response.json()
       setPosts(data.posts)
     } catch (err) {
@@ -44,12 +46,12 @@ export default function PostsList({ refreshTrigger = 0 }: PostsListProps) {
     if (!session?.user) return;
 
     // Immediate UI update - fire and forget
-    setPosts(prevPosts => 
+    setPosts(prevPosts =>
       prevPosts.map(post => {
         if (post._id === postId) {
           const updatedPost = { ...post }; // Shallow clone is enough
           const reactionTypes = ['likes', 'loves', 'hahas', 'wows', 'sads', 'angrys'] as const;
-          
+
           // Simple user reaction data
           const userReactionData: UserReactionType = {
             userId: session.user.id,
@@ -70,13 +72,13 @@ export default function PostsList({ refreshTrigger = 0 }: PostsListProps) {
           if (reaction) {
             const reactionMap = {
               'like': 'likes',
-              'love': 'loves', 
+              'love': 'loves',
               'haha': 'hahas',
               'wow': 'wows',
               'sad': 'sads',
               'angry': 'angrys'
             } as const;
-            
+
             const reactionField = reactionMap[reaction as keyof typeof reactionMap];
             if (reactionField) {
               updatedPost.reactions[reactionField].push(userReactionData);
@@ -117,7 +119,7 @@ export default function PostsList({ refreshTrigger = 0 }: PostsListProps) {
     return (
       <div className="text-center py-8 text-red-600">
         {error}
-        <button 
+        <button
           onClick={fetchPosts}
           className="ml-4 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
         >
@@ -138,9 +140,9 @@ export default function PostsList({ refreshTrigger = 0 }: PostsListProps) {
   return (
     <div className="space-y-6">
       {posts.map(post => (
-        <Post 
-          key={post._id} 
-          post={post} 
+        <Post
+          key={post._id}
+          post={post}
           onReactionUpdate={updatePostReaction}
           onCommentAdded={() => {
             // This will trigger the optimistic update in CommentSection
