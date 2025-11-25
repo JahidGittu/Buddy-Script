@@ -46,9 +46,9 @@ next-env.d.ts
 # Sequence for git commiting
 components
 
-login
+posts
 
-api
+upload
 
 lib
 
