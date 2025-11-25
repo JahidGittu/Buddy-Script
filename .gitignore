@@ -44,12 +44,3 @@ next-env.d.ts
 
 
 # Sequence for git commiting
-
-lib
-
-models
-
-types 
-
-utils
-
