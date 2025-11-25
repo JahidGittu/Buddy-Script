@@ -3,6 +3,7 @@
 
 import { useState, useRef } from 'react'
 import { useSession } from 'next-auth/react'
+import { useAuth } from '@/utils/providers/AuthSessionProvider';
 
 interface CreatePostProps {
   onPostCreated?: () => void;
@@ -19,6 +20,8 @@ export default function CreatePost({ onPostCreated }: CreatePostProps) {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const privacyMenuRef = useRef<HTMLDivElement>(null)
+
+  const {user} = useAuth()
 
   const handleImageSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
@@ -177,7 +180,7 @@ export default function CreatePost({ onPostCreated }: CreatePostProps) {
       <div className="flex items-start space-x-4 mb-4">
         <div className="flex-shrink-0 cursor-pointer">
           <img
-            src={session?.user?.image || '/assets/images/txt_img.png'}
+            src={user?.image || '/assets/images/txt_img.png'}
             alt="Profile"
             className="w-10 h-10 rounded-full border border-gray-300 object-cover"
           />
