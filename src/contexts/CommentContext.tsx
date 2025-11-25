@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react'
 import { useSession } from 'next-auth/react'
-import { CommentType } from '@/types/post'
+import { CommentType, UserReactionType } from '@/types/post'
 
 interface CommentContextType {
   postId: string
@@ -27,6 +27,16 @@ interface CommentProviderProps {
   postId: string
   onReplyAdded?: () => void
   initialComments?: CommentType[]
+}
+
+// Define proper type for reactions
+interface ReactionsObject {
+  likes: UserReactionType[];
+  loves: UserReactionType[];
+  hahas: UserReactionType[];
+  wows: UserReactionType[];
+  sads: UserReactionType[];
+  angrys: UserReactionType[];
 }
 
 export function CommentProvider({ 
@@ -181,42 +191,49 @@ export function CommentProvider({
     }
   }, [replyText, session, postId, onReplyAdded, optimisticComments])
 
+  // Helper function to create updated reactions
+  const createUpdatedReactions = useCallback((currentUserReaction: string): ReactionsObject => {
+    const updatedReactions: ReactionsObject = {
+      likes: [],
+      loves: [],
+      hahas: [],
+      wows: [],
+      sads: [],
+      angrys: []
+    };
+
+    // Set the current user reaction
+    if (currentUserReaction && session?.user) {
+      const reactionField = `${currentUserReaction}s` as keyof ReactionsObject;
+      
+      const userReaction: UserReactionType = {
+        userId: session.user.id,
+        email: session.user.email || 'temp@example.com',
+        name: session.user.name || 'User',
+        avatar: session.user.image || '/default-avatar.png',
+        reactedAt: new Date().toISOString()
+      };
+
+      updatedReactions[reactionField] = [userReaction];
+    }
+
+    return updatedReactions;
+  }, [session]);
+
   // FIXED: Optimistic update for comment reactions
   const updateCommentReactions = useCallback((commentId: string, data: { totalReactions: number; currentUserReaction: string }) => {
     setOptimisticComments(prev =>
       prev.map(comment => {
         if (comment._id === commentId) {
-          // Create updated reactions object based on the data
-          const updatedReactions = {
-            likes: [],
-            loves: [],
-            hahas: [],
-            wows: [],
-            sads: [],
-            angrys: []
-          };
-
-          // Set the current user reaction
-          if (data.currentUserReaction) {
-            const reactionField = `${data.currentUserReaction}s` as keyof typeof updatedReactions;
-            updatedReactions[reactionField] = [{
-              userId: session?.user?.id || 'temp',
-              email: session?.user?.email || 'temp@example.com',
-              name: session?.user?.name || 'User',
-              avatar: session?.user?.image || '/default-avatar.png',
-              reactedAt: new Date().toISOString()
-            }];
-          }
-
           return {
             ...comment,
-            reactions: updatedReactions
+            reactions: createUpdatedReactions(data.currentUserReaction)
           };
         }
         return comment
       })
     )
-  }, [session])
+  }, [createUpdatedReactions])
 
   // FIXED: Optimistic update for reply reactions
   const updateReplyReactions = useCallback((commentId: string, replyId: string, data: { totalReactions: number; currentUserReaction: string }) => {
@@ -225,31 +242,9 @@ export function CommentProvider({
         if (comment._id === commentId) {
           const updatedReplies = comment.replies.map(reply => {
             if (reply._id === replyId) {
-              // Create updated reactions object based on the data
-              const updatedReactions = {
-                likes: [],
-                loves: [],
-                hahas: [],
-                wows: [],
-                sads: [],
-                angrys: []
-              };
-
-              // Set the current user reaction
-              if (data.currentUserReaction) {
-                const reactionField = `${data.currentUserReaction}s` as keyof typeof updatedReactions;
-                updatedReactions[reactionField] = [{
-                  userId: session?.user?.id || 'temp',
-                  email: session?.user?.email || 'temp@example.com',
-                  name: session?.user?.name || 'User',
-                  avatar: session?.user?.image || '/default-avatar.png',
-                  reactedAt: new Date().toISOString()
-                }];
-              }
-
               return {
                 ...reply,
-                reactions: updatedReactions
+                reactions: createUpdatedReactions(data.currentUserReaction)
               };
             }
             return reply
@@ -259,7 +254,7 @@ export function CommentProvider({
         return comment
       })
     )
-  }, [session])
+  }, [createUpdatedReactions])
 
   // FIXED: Optimistic update for nested reply reactions
   const updateNestedReplyReactions = useCallback((commentId: string, parentReplyId: string, nestedReplyId: string, data: { totalReactions: number; currentUserReaction: string }) => {
@@ -270,31 +265,9 @@ export function CommentProvider({
             if (reply._id === parentReplyId) {
               const updatedNestedReplies = reply.replies.map(nestedReply => {
                 if (nestedReply._id === nestedReplyId) {
-                  // Create updated reactions object based on the data
-                  const updatedReactions = {
-                    likes: [],
-                    loves: [],
-                    hahas: [],
-                    wows: [],
-                    sads: [],
-                    angrys: []
-                  };
-
-                  // Set the current user reaction
-                  if (data.currentUserReaction) {
-                    const reactionField = `${data.currentUserReaction}s` as keyof typeof updatedReactions;
-                    updatedReactions[reactionField] = [{
-                      userId: session?.user?.id || 'temp',
-                      email: session?.user?.email || 'temp@example.com',
-                      name: session?.user?.name || 'User',
-                      avatar: session?.user?.image || '/default-avatar.png',
-                      reactedAt: new Date().toISOString()
-                    }];
-                  }
-
                   return {
                     ...nestedReply,
-                    reactions: updatedReactions
+                    reactions: createUpdatedReactions(data.currentUserReaction)
                   };
                 }
                 return nestedReply
@@ -308,7 +281,7 @@ export function CommentProvider({
         return comment
       })
     )
-  }, [session])
+  }, [createUpdatedReactions])
 
   const value: CommentContextType = {
     postId,
